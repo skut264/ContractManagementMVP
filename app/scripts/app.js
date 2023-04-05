@@ -54,8 +54,9 @@ async function renderText() {
 async function sendTicketReply() {
   const tData = await client.data.get('ticket');
   const ticketId = tData.ticket.id;
-  const apiKey = 'iy4J35AI0aJRCSxzAmc8'; // Replace with actual API key
-  const baseUrl = `https://benjaminsquare.freshdesk.com/api/v2/tickets/${ticketId}/reply`;
+  const apiKey = 'ciwV7bDL8Nohc71eA7i'; // Replace with actual API key
+  const replyUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets/${ticketId}/reply`;
+  const updateUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets/${ticketId}`;
   const headers = {
     'Authorization': `Basic ${btoa(apiKey + ':x')}`,
     'Content-Type': 'application/json'
@@ -63,14 +64,30 @@ async function sendTicketReply() {
   const payload = {
     body: 'Content of the reply goes here'
   };
+  const updatePayload = {
+    priority: 1,
+    status: 5,
+	tags:['contractover']
+  };
   try {
-    const response = await fetch(baseUrl, {
+    const response = await fetch(replyUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(payload)
     });
     if (response.ok) {
       console.log('Ticket reply sent successfully');
+      // Call the update API
+      const updateResponse = await fetch(updateUrl, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(updatePayload)
+      });
+      if (updateResponse.ok) {
+        console.log('Ticket updated successfully');
+      } else {
+        throw new Error(`Failed to update ticket. Status: ${updateResponse.status}`);
+      }
     } else {
       throw new Error(`Failed to send ticket reply. Status: ${response.status}`);
     }
@@ -79,12 +96,13 @@ async function sendTicketReply() {
   }
 }
 
+
 async function getCompanyRenewalDate() {
   const contactData = await client.data.get('contact');
   const cid = contactData.contact.company_id;
   const companyID = cid;
-  const apiKey = 'iy4J35AI0aJRCSxzAmc8';
-  const baseUrl = `https://benjaminsquare.freshdesk.com/api/v2/companies/${companyID}`;
+  const apiKey = 'ciwV7bDL8Nohc71eA7i';
+  const baseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
   const headers = {
     'Authorization': `Basic ${btoa(apiKey + ':x')}`
   };
