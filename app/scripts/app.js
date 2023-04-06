@@ -128,7 +128,9 @@ if (companyResponse.ok && ticketsResponse.ok) {
    console.log(totalTickets);
    console.log(totalTicketsCustomField);
   if (totalTickets > totalTicketsCustomField) {
-    console.log(`Total tickets: ${totalTickets}, Custom field value: ${totalTicketsCustomField}`);
+	   const finalElement2 = document.getElementById('finalText3');
+    console.log(`poda DASH KU`);
+	finalElement2.innerHTML = 'Dash ku domeru'
     // Do something here if total tickets is greater than custom field value
   }
   
