@@ -9,7 +9,7 @@ async function init() {
 
 async function renderAllData() {
   await renderText();
-  await renderButton();
+  //await renderButton();
 }
 
 async function renderText() {
@@ -98,25 +98,55 @@ async function sendTicketReply() {
 
 
 async function getCompanyRenewalDate() {
-  const contactData = await client.data.get('contact');
-  const cid = contactData.contact.company_id;
-  const companyID = cid;
-  const apiKey = 'ciwV7bDL8Nohc71eA7i';
-  const baseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
-  const headers = {
-    'Authorization': `Basic ${btoa(apiKey + ':x')}`
-  };
-  try {
-    const response = await fetch(baseUrl, { headers });
-    if (response.ok) {
-      const companyData = await response.json();
-      const renewalDate = companyData.custom_fields.ch;
-      return renewalDate;
-    } else {
-      throw new Error(`Could not retrieve company details. Status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error(error);
-    throw error;
+const contactData = await client.data.get('contact');
+const cid = contactData.contact.company_id;
+const companyID = cid;
+
+// Company 1 API
+const apiKey1 = 'ciwV7bDL8Nohc71eA7i';
+const companyBaseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
+const ticketsBaseUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets?company_id=${companyID}`;
+
+// Company 2 API
+const apiKey2 = 'ciwV7bDL8Nohc71eA7i';
+const baseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
+
+const headers = {
+'Authorization': `Basic ${btoa(apiKey1 + ':x')}`
+};
+
+try {
+const [companyResponse, ticketsResponse] = await Promise.all([
+fetch(companyBaseUrl, { headers }),
+fetch(ticketsBaseUrl, { headers })
+]);
+
+if (companyResponse.ok && ticketsResponse.ok) {
+  const companyData = await companyResponse.json();
+ const totalTickets = (await ticketsResponse.json()).length;
+  const totalTicketsCustomField = companyData.custom_fields.totaltickets;
+   console.log(totalTickets);
+   console.log(totalTicketsCustomField);
+  if (totalTickets > totalTicketsCustomField) {
+    console.log(`Total tickets: ${totalTickets}, Custom field value: ${totalTicketsCustomField}`);
+    // Do something here if total tickets is greater than custom field value
   }
+  
+  const renewalDate = companyData.custom_fields.ch;
+  return renewalDate;
+} else {
+  // Try second API endpoint
+  const response = await fetch(baseUrl, { headers });
+  if (response.ok) {
+    const companyData = await response.json();
+    const renewalDate = companyData.custom_fields.ch;
+    return renewalDate;
+  } else {
+    throw new Error(`Could not retrieve company details. Status: ${response.status}`);
+  }
+}
+} catch (error) {
+console.error(error);
+throw error;
+}
 }
