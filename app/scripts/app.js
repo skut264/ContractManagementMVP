@@ -28,8 +28,8 @@ async function renderText() {
   console.log(contactData);
   console.log(tData);
 
-  nameElement.innerHTML = `Ticket is created by ${name}`;
-  choursElement.innerHTML = `Ticket created on ${tcreated}`;
+  //nameElement.innerHTML = `Ticket is created by ${name}`;
+  //hoursElement.innerHTML = `Ticket created on ${tcreated}`;
 
   try {
     const renewalDate = await getCompanyRenewalDate();
