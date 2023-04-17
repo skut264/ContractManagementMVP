@@ -28,8 +28,8 @@ async function renderText() {
   console.log(contactData);
   console.log(tData);
 
-  //nameElement.innerHTML = `Ticket is created by ${name}`;
-  //hoursElement.innerHTML = `Ticket created on ${tcreated}`;
+  nameElement.innerHTML = `Ticket is created by ${name}`;
+  choursElement.innerHTML = `Ticket created on ${tcreated}`;
 
   try {
     const renewalDate = await getCompanyRenewalDate();
@@ -102,20 +102,16 @@ async function getCompanyRenewalDate() {
   const cid = contactData.contact.company_id;
   const companyID = cid;
 
-  // Company 1 API
-  const apiKey1 = 'ciwV7bDL8Nohc71eA7i';
-  const companyBaseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
-  const ticketsBaseUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets?company_id=${companyID}`;
-
-  // Company 2 API
-  const apiKey2 = 'ciwV7bDL8Nohc71eA7i';
-  const baseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
-
+  const apiKey = 'ciwV7bDL8Nohc71eA7i';
   const headers = {
-    'Authorization': `Basic ${btoa(apiKey1 + ':x')}`
+    'Authorization': `Basic ${btoa(apiKey + ':x')}`
   };
 
   try {
+    // Try the first API endpoint
+    const companyBaseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
+    const ticketsBaseUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets?company_id=${companyID}`;
+
     const [companyResponse, ticketsResponse] = await Promise.all([
       fetch(companyBaseUrl, { headers }),
       fetch(ticketsBaseUrl, { headers })
@@ -123,37 +119,34 @@ async function getCompanyRenewalDate() {
 
     if (companyResponse.ok && ticketsResponse.ok) {
       const companyData = await companyResponse.json();
-      const totalTickets = (await ticketsResponse.json()).length;
-      const totalTicketsCustomField = companyData.custom_fields.totaltickets;
-      console.log(totalTickets);
-      console.log(totalTicketsCustomField);
-      if (totalTickets > totalTicketsCustomField) {
-        const putUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
-        const tagPayload = { note: 'oops' };
-        const putHeaders = {
-          'Authorization': `Basic ${btoa(apiKey1 + ':x')}`,
-          'Content-Type': 'application/json'
-        };
-        const putOptions = {
-          method: 'PUT',
-          headers: putHeaders,
-          body: JSON.stringify(tagPayload)
-        };
-        const putResponse = await fetch(putUrl, putOptions);
-        if (!putResponse.ok) {
-          throw new Error(`Could not update company with tag. Status: ${putResponse.status}`);
-        }
-      }
-
       const renewalDate = companyData.custom_fields.ch;
-      return renewalDate;
+      const chours = companyData.custom_fields.chours;
+      if (!renewalDate) {
+        if (!chours) {
+          throw new Error('Renewal date and company hours are missing values');
+        } else {
+          return chours;
+        }
+      } else {
+        return renewalDate;
+      }
     } else {
       // Try second API endpoint
+      const baseUrl = `https://developingmyessentials.freshdesk.com/api/v2/companies/${companyID}`;
       const response = await fetch(baseUrl, { headers });
       if (response.ok) {
         const companyData = await response.json();
         const renewalDate = companyData.custom_fields.ch;
-        return renewalDate;
+        const chours = companyData.custom_fields.chours;
+        if (!renewalDate) {
+          if (!chours) {
+            throw new Error('Renewal date and company hours are missing values');
+          } else {
+            return chours;
+          }
+        } else {
+          return renewalDate;
+        }
       } else {
         throw new Error(`Could not retrieve company details. Status: ${response.status}`);
       }
@@ -163,3 +156,4 @@ async function getCompanyRenewalDate() {
     throw error;
   }
 }
+
