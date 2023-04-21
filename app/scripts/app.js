@@ -12,37 +12,49 @@ async function renderAllData() {
   //await renderButton();
 }
 
+
 async function renderText() {
-  const nameElement = document.getElementById('nameText');
-  const choursElement = document.getElementById('choursText');
+  //const nameElement = document.getElementById('nameText');
+  //const choursElement = document.getElementById('choursText');
   const finalElement = document.getElementById('finalText');
   const cidElement = document.getElementById('cidText');
   const contactData = await client.data.get('contact');
   const tData = await client.data.get('ticket');
   const tcreated = tData.ticket.created_at;
   const buttonElement = document.getElementById('replyButton');
+  
 
   const {
-    contact: { name }
+    //contact: { name }
   } = contactData;
   console.log(contactData);
   console.log(tData);
 
-  nameElement.innerHTML = `Ticket is created by ${name}`;
-  choursElement.innerHTML = `Ticket created on ${tcreated}`;
+ // nameElement.innerHTML = `Ticket is created by ${name}`;
+  //choursElement.innerHTML = `Ticket created on ${tcreated}`;
 
   try {
     const renewalDate = await getCompanyRenewalDate();
-    cidElement.innerHTML = `Your Company Dash Ends on ${renewalDate}`;
+    cidElement.innerHTML = `Your Company Contract Ends on ${renewalDate}`;
     if (tcreated < renewalDate){
       finalElement.innerHTML = `Contract Valid, Continue Working`;
 	  buttonElement.style.display = 'none';
+	  const app = document.getElementById("app");
+
+// Check if the contract is valid
+//const isContractValid = true; // Change this to your validation logic
+
+// Add or remove the "valid" class based on the validation result
+
+  app.classList.add("valid");
 	}
     else
 	{
-      finalElement.innerHTML = `Ticket la kai vecha Setha`;
+      finalElement.innerHTML = `Contract over! Don't work on this ticket.`;
 	  buttonElement.style.display = 'block';
       buttonElement.addEventListener('click', sendTicketReply);
+	  console.log(renewalDate);
+	  console.log(tcreated);
 	}
   } catch (error) {
     console.error(error);
@@ -156,4 +168,3 @@ async function getCompanyRenewalDate() {
     throw error;
   }
 }
-

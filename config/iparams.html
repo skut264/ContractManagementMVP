@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://static.freshdev.io/fdk/2.0/assets/fresh_client.js"></script>
+    <link rel="stylesheet" href="./assets/iparams.css" />
+  </head>
+  <body>
+    <main>
+      <h3>
+        Installation page
+        <code>iparams.html</code>
+      </h3>
+	  
+	 
+	  
+<fw-dropdown-button
+  label="Do you want your contract management application to be handling Expiry date or Contract hours?"
+  class="select-management"
+>
+  <div slot="dropdown-options">
+    <option value="expiry_date">Expiry Date</option>
+    <option value="contract_hours">Contract Hours</option>
+  </div>
+</fw-dropdown-button>
+
+<p id="selectedOptionMsg">hello world</p>
+
+<script>
+
+  const selectedVal = document.querySelector(".select-management");
+  const selectedOptionMsg = document.querySelector("#selectedOptionMsg");
+
+  selectedVal.addEventListener("change", function() {
+    selectedOptionMsg.textContent = `Selected option: ${selectedVal.value}`;
+  });
+</script>
+
+      
+
+      <fw-input
+        label="Freshdesk API Key"
+        icon-right="magic-wand"
+        placeholder="Freshdesk Portal > Profile > Copy API Key"
+        required="true"
+        minlength="5"
+        size="30"
+        class="secure-field"
+        data-bind="product.api_key"
+      ></fw-input>
+
+      
+
+      <section>
+
+        <fw-input
+          required="true"
+          type="text"
+          icon-left="items"
+          label="domain"
+          size="30"
+          placeholder="subdomain.freshdesk.com"
+          class="domain"
+          data-bind="product.domain"
+        ></fw-input>
+      </section>
+    </main>
+	
+    <script src="./assets/iparams.js"></script>
+    <script>
+const selectedVal = document.querySelector(".select-management fw-dropdown-button").value;
+      const apiKey = document.querySelector(".secure-field");
+      const domain = document.querySelector(".domain");
+    
+      function postConfigs() {
+        return {
+          __meta: {
+            secure: ["apiKey"]
+          },
+          api_key: apiKey.value,
+          transformation: selectedVal.value,
+          domain_url: domain.value,
+          name: nameField.value,
+          date: selectedDate.value
+        };
+      }
+
+      function getConfigs(configs) {
+        let { api_key, transformation, domain_url, name, date } = configs;
+        selectedVal.value = transformation;
+        apiKey.value = api_key;
+        selectedDate.value = date;
+        domain.value = domain_url;
+        nameField.value = name;
+        return;
+      }
+
+      async function validate() {
+        const URL = `https://${domain.value}/api/v2/tickets`;
+        const base64Encoded = btoa(apiKey.value);
+        let options = {
+          headers: {
+            Authorization: `Basic ${base64Encoded}`,
+            "Content-Type": "application/json"
+          }
+        };
+        try {
+          let { status } = await client.request.get(URL, options);
+          if (status == 200) return true;
+        } catch (error) {
+          console.error(error);
+          return false;
+        }
+      }
+    </script>
+    <script type="module" src="https://unpkg.com/@freshworks/crayons/dist/crayons/crayons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/@freshworks/crayons/dist/crayons/crayons.js"></script>
+  </body>
+</html>	
