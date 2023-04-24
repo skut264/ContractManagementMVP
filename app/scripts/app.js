@@ -20,42 +20,100 @@ async function renderText() {
   const cidElement = document.getElementById('cidText');
   const contactData = await client.data.get('contact');
   const tData = await client.data.get('ticket');
+  const cData = await client.data.get('company');
   const tcreated = tData.ticket.created_at;
+  let crenewaldate = cData.company.renewal_date;
+  let chourss = cData.company.custom_fields.chours;
   const buttonElement = document.getElementById('replyButton');
-  
+  //client.data.get('time_entry').then((timeEntries) => {
+  // Here, 'timeEntries' is the resolved array of time entry objects
+//  console.log(timeEntries);
 
+  
+//});
+const timeEntries = await client.data.get('time_entry');
+console.log(timeEntries);
+  // Map over the time entry objects and return an array of time spent values
+  //const timeSpentArr = timeEntries.map(timeEntry => timeEntry.time_spent);
+  /*const timeSpent = timeEntries.time_entry.time_entries[0].time_spent;
+  console.log(timeSpent);*/
+  let timeSpent = 0;
+  
+	for (let i = 0; i < timeEntries.time_entry.time_entries.length; i++) {
+  timeSpent += parseInt(timeEntries.time_entry.time_entries[i].time_spent);
+}
+timeSpent = timeSpent/3600;
+    console.log(timeSpent);
+  
   const {
     //contact: { name }
   } = contactData;
-  console.log(contactData);
-  console.log(tData);
+  
 
- // nameElement.innerHTML = `Ticket is created by ${name}`;
+  // nameElement.innerHTML = `Ticket is created by ${name}`;
   //choursElement.innerHTML = `Ticket created on ${tcreated}`;
 
   try {
-    const renewalDate = await getCompanyRenewalDate();
-    cidElement.innerHTML = `Your Company Contract Ends on ${renewalDate}`;
-    if (tcreated < renewalDate){
-      finalElement.innerHTML = `Contract Valid, Continue Working`;
-	  buttonElement.style.display = 'none';
-	  const app = document.getElementById("app");
+    if (!crenewaldate && chourss) {
+      // If renewal date is not available but chourss is, make an API call to get time entries for the company
+      console.log(chourss);
+	  const companyID = cData.company.id;
+      const timeEntriesUrl = `https://developingmyessentials.freshdesk.com/api/v2/time_entries?company_id=${companyID}`;
+      const apiKey = 'ciwV7bDL8Nohc71eA7i';
+  const headers = {
+    'Authorization': `Basic ${btoa(apiKey + ':x')}`
+  };
 
-// Check if the contract is valid
-//const isContractValid = true; // Change this to your validation logic
+      const timeEntriesResponse = await fetch(timeEntriesUrl, { headers });
+      const timeEntriesData = await timeEntriesResponse.json();
+	 
 
-// Add or remove the "valid" class based on the validation result
+    
+	   	   
+let timeSpentt = 0;
+for (let i = 0; i < timeEntriesData.length; i++) {
+  timeSpentt += timeEntriesData[i].time_spent_in_seconds;
+}
+		
+		timeSpentt= timeSpentt/3600;
+		console.log(timeSpentt);
+	  timeSpent=timeSpent+timeSpentt;
+	  console.log(timeSpent);
+	  
+      if (timeSpent > chourss) {
+        finalElement.innerHTML = 'Error: Company has exceeded allotted hours';
+        buttonElement.style.display = 'none';
+		client.interface.trigger("showNotify", {
+    type: "danger",
+    message: "Don't Work on the Ticket STOPPPPP"
+  /* The "message" should be plain text */
+  })
+  buttonElement.style.display = 'block';
+        buttonElement.addEventListener('click', sendTicketReply);
+      } else {
+        cidElement.innerHTML = `Your Company has ${chourss} hours allotted`;
+        finalElement.innerHTML = `Company has ${timeSpent} hours spent`;
+		buttonElement.style.display = 'none';
+        
+      }
+    } else if (crenewaldate) {
+      // If renewal date is available, check if ticket was created before the renewal date
+      cidElement.innerHTML = `Your Company Contract Ends on ${crenewaldate}`;
+      if (tcreated < crenewaldate) {
+        finalElement.innerHTML = 'Contract Valid, Continue Working';
+        buttonElement.style.display = 'none';
 
-  app.classList.add("valid");
-	}
-    else
-	{
-      finalElement.innerHTML = `Contract over! Don't work on this ticket.`;
-	  buttonElement.style.display = 'block';
-      buttonElement.addEventListener('click', sendTicketReply);
-	  console.log(renewalDate);
-	  console.log(tcreated);
-	}
+      } else {
+        finalElement.innerHTML = `Contract over! Don't work on this ticket.`;
+        buttonElement.style.display = 'block';
+        buttonElement.addEventListener('click', sendTicketReply);
+      }
+    } else {
+      // If both renewal date and chourss are not available
+      cidElement.innerHTML = 'Could not retrieve company details.';
+      finalElement.innerHTML = '';
+      buttonElement.style.display = 'none';
+    }
   } catch (error) {
     console.error(error);
     cidElement.innerHTML = 'Could not retrieve company details.';
@@ -64,9 +122,13 @@ async function renderText() {
 
 
 async function sendTicketReply() {
+	apiKey.value = api_key;
   const tData = await client.data.get('ticket');
   const ticketId = tData.ticket.id;
   const apiKey = 'ciwV7bDL8Nohc71eA7i'; // Replace with actual API key
+  const apiKey2 =apiKey.value;
+console.log(apiKey2);  
+
   const replyUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets/${ticketId}/reply`;
   const updateUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets/${ticketId}`;
   const headers = {
