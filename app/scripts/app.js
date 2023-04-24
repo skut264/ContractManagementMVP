@@ -85,7 +85,7 @@ for (let i = 0; i < timeEntriesData.length; i++) {
         buttonElement.style.display = 'none';
 		client.interface.trigger("showNotify", {
     type: "danger",
-    message: "Don't Work on the Ticket STOPPPPP"
+    message: "Contract Hours of this client has Expired. Don't work on this ticket"
   /* The "message" should be plain text */
   })
   buttonElement.style.display = 'block';

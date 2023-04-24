@@ -10,7 +10,7 @@
       }
     }
   },
-  "whitelisted-domains": [],
+  "whitelisted-domains": [ "https://*.freshdesk.com"],
   "engines": {
     "node": "14.3.0",
     "fdk": "8.6.7"

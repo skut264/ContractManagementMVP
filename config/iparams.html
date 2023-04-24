@@ -53,58 +53,7 @@
     </main>
 	
     <script src="./assets/iparams.js"></script>
-    <script>
-      const selectedVal = document.querySelector("#management-select");
-      const apiKey = document.querySelector(".secure-field");
-      const domain = document.querySelector(".domain");
-    
-      function postConfigs() {
-        return {
-          __meta: {
-            secure: ["apiKey"]
-          },
-          api_key: apiKey.value,
-          transformation: selectedVal.value,
-          domain_url: domain.value,
-          name: nameField.value,
-          date: selectedDate.value
-        };
-      }
-
-      function getConfigs(configs) {
-        let { api_key, transformation, domain_url, name, date } = configs;
-        selectedVal.value = transformation;
-        selectedVal.label = `Selected option: ${transformation}`;
-        apiKey.value = api_key;
-        selectedDate.value = date;
-        domain.value = domain_url;
-        nameField.value = name;
-        return;
-      }
-
-      async function validate() {
-        const URL = `https://${domain.value}/api/v2/tickets`;
-        const base64Encoded = btoa(apiKey.value);
-        let options = {
-          headers: {
-            Authorization: `Basic ${base64Encoded}`,
-            "Content-Type": "application/json"
-          }
-        };
-        try {
-          let { status } = await client.request.get(URL, options);
-          if (status == 200) return true;
-        } catch (error) {
-          console.error(error);
-          return false;
-        }
-      }
-
-      selectedVal.addEventListener("change", function() {
-        selectedVal.label = `Selected option: ${selectedVal.value}`;
-      });
-    </script>
-    <script type="module" src="https://unpkg.com/@freshworks/crayons/dist/crayons/crayons.esm.js"></script>
+       <script type="module" src="https://unpkg.com/@freshworks/crayons/dist/crayons/crayons.esm.js"></script>
     <script nomodule src="https://unpkg.com/@freshworks/crayons/dist/crayons/crayons.js"></script>
   </body>
 </html>	
