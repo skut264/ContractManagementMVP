@@ -25,14 +25,9 @@ async function renderText() {
   let crenewaldate = cData.company.renewal_date;
   let chourss = cData.company.custom_fields.chours;
   const buttonElement = document.getElementById('replyButton');
-  //client.data.get('time_entry').then((timeEntries) => {
-  // Here, 'timeEntries' is the resolved array of time entry objects
-//  console.log(timeEntries);
 
-  
-//});
 const timeEntries = await client.data.get('time_entry');
-console.log(timeEntries);
+
   // Map over the time entry objects and return an array of time spent values
   //const timeSpentArr = timeEntries.map(timeEntry => timeEntry.time_spent);
   /*const timeSpent = timeEntries.time_entry.time_entries[0].time_spent;
@@ -43,7 +38,7 @@ console.log(timeEntries);
   timeSpent += parseInt(timeEntries.time_entry.time_entries[i].time_spent);
 }
 timeSpent = timeSpent/3600;
-    console.log(timeSpent);
+    
   
   const {
     //contact: { name }
@@ -56,7 +51,7 @@ timeSpent = timeSpent/3600;
   try {
     if (!crenewaldate && chourss) {
       // If renewal date is not available but chourss is, make an API call to get time entries for the company
-      console.log(chourss);
+   
 	  const companyID = cData.company.id;
       const timeEntriesUrl = `https://developingmyessentials.freshdesk.com/api/v2/time_entries?company_id=${companyID}`;
       const apiKey = 'ciwV7bDL8Nohc71eA7i';
@@ -76,9 +71,9 @@ for (let i = 0; i < timeEntriesData.length; i++) {
 }
 		
 		timeSpentt= timeSpentt/3600;
-		console.log(timeSpentt);
+		
 	  timeSpent=timeSpent+timeSpentt;
-	  console.log(timeSpent);
+	
 	  
       if (timeSpent > chourss) {
         finalElement.innerHTML = 'Error: Company has exceeded allotted hours';
@@ -122,12 +117,14 @@ for (let i = 0; i < timeEntriesData.length; i++) {
 
 
 async function sendTicketReply() {
-	apiKey.value = api_key;
+	 //let apiKey = document.querySelector('.secure-field');
+	//apiKey.value = api_key;
+	
   const tData = await client.data.get('ticket');
   const ticketId = tData.ticket.id;
   const apiKey = 'ciwV7bDL8Nohc71eA7i'; // Replace with actual API key
-  const apiKey2 =apiKey.value;
-console.log(apiKey2);  
+
+
 
   const replyUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets/${ticketId}/reply`;
   const updateUrl = `https://developingmyessentials.freshdesk.com/api/v2/tickets/${ticketId}`;
@@ -136,7 +133,7 @@ console.log(apiKey2);
     'Content-Type': 'application/json'
   };
   const payload = {
-    body: 'Content of the reply goes here'
+    body: 'Contract Over, Contact Contractor Nesamani'
   };
   const updatePayload = {
     priority: 1,
@@ -150,7 +147,7 @@ console.log(apiKey2);
       body: JSON.stringify(payload)
     });
     if (response.ok) {
-      console.log('Ticket reply sent successfully');
+      
       // Call the update API
       const updateResponse = await fetch(updateUrl, {
         method: 'PUT',
@@ -158,7 +155,7 @@ console.log(apiKey2);
         body: JSON.stringify(updatePayload)
       });
       if (updateResponse.ok) {
-        console.log('Ticket updated successfully');
+        
       } else {
         throw new Error(`Failed to update ticket. Status: ${updateResponse.status}`);
       }
@@ -166,7 +163,7 @@ console.log(apiKey2);
       throw new Error(`Failed to send ticket reply. Status: ${response.status}`);
     }
   } catch (error) {
-    console.error(error);
+    
   }
 }
 
@@ -226,7 +223,7 @@ async function getCompanyRenewalDate() {
       }
     }
   } catch (error) {
-    console.error(error);
+   
     throw error;
   }
 }

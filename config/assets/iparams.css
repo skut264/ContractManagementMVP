@@ -1,0 +1,23 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: auto;
+  column-gap: 3rem;
+  row-gap: 1rem;
+  justify-items: stretch;
+  align-items: center;
+}
+
+h3 {
+/*  grid-area: 1 / 1 / 1 / 4;*/
+}
