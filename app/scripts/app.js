@@ -1,5 +1,3 @@
-var client;
-
 init();
 
 async function init() {
@@ -14,7 +12,7 @@ async function renderAllData() {
 
 
 async function renderText() {
-  //const nameElement = document.getElementById('nameText');
+	//const nameElement = document.getElementById('nameText');
   //const choursElement = document.getElementById('choursText');
   const finalElement = document.getElementById('finalText');
   const cidElement = document.getElementById('cidText');
@@ -22,7 +20,10 @@ async function renderText() {
   const tData = await client.data.get('ticket');
   const cData = await client.data.get('company');
   const tcreated = tData.ticket.created_at;
-  let crenewaldate = cData.company.renewal_date;
+  let crenewaldate = cData.company.custom_fields.ch;
+  let formattedDate = new Date(crenewaldate).toISOString().split('T')[0];
+  //console.log(formattedDate);
+  
   let chourss = cData.company.custom_fields.chours;
   const buttonElement = document.getElementById('replyButton');
 
@@ -49,7 +50,7 @@ timeSpent = timeSpent/3600;
   //choursElement.innerHTML = `Ticket created on ${tcreated}`;
 
   try {
-    if (!crenewaldate && chourss) {
+    if (!formattedDate && chourss) {
       // If renewal date is not available but chourss is, make an API call to get time entries for the company
    
 	  const companyID = cData.company.id;
@@ -91,14 +92,19 @@ for (let i = 0; i < timeEntriesData.length; i++) {
 		buttonElement.style.display = 'none';
         
       }
-    } else if (crenewaldate) {
+    } else if (formattedDate) {
       // If renewal date is available, check if ticket was created before the renewal date
-      cidElement.innerHTML = `Your Company Contract Ends on ${crenewaldate}`;
-      if (tcreated < crenewaldate) {
+      cidElement.innerHTML = `Your Company Contract Ends on ${formattedDate}`;
+      if (tcreated < formattedDate) {
         finalElement.innerHTML = 'Contract Valid, Continue Working';
         buttonElement.style.display = 'none';
 
       } else {
+		  client.interface.trigger("showNotify", {
+    type: "danger",
+    message: "Contract Expired  for this client. Don't work on this ticket"
+  /* The "message" should be plain text */
+  })
         finalElement.innerHTML = `Contract over! Don't work on this ticket.`;
         buttonElement.style.display = 'block';
         buttonElement.addEventListener('click', sendTicketReply);
